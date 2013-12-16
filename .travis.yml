@@ -17,7 +17,8 @@ before_install:
   - sudo apt-get update -qq
   - sudo apt-get -y -o Dpkg::Options::=--force-confdef -o Dpkg::Options::="--force-confnew" install postgresql-$PGVERSION postgresql-server-dev-$PGVERSION
   - sudo chmod 777 /etc/postgresql/$PGVERSION/main/pg_hba.conf
-  - sudo echo "local      all         postgres                           trust" > /etc/postgresql/$PGVERSION/main/pg_hba.conf
+  - sudo echo "local      all         postgres                          trust" > /etc/postgresql/$PGVERSION/main/pg_hba.conf
+  - sudo echo "host       all         postgres         127.0.0.1/32     trust" >> /etc/postgresql/$PGVERSION/main/pg_hba.conf
   - sudo echo "hostssl    pqgotest    test.pqgotest.com  127.0.0.1/32    cert" >> /etc/postgresql/$PGVERSION/main/pg_hba.conf
   - sudo chmod 777 /etc/postgresql/$PGVERSION/main/postgresql.conf
   - sudo echo "ssl = on" >> /etc/postgresql/$PGVERSION/main/postgresql.conf
