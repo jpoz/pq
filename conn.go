@@ -662,7 +662,7 @@ func (cn *conn) ssl(o values) {
 	kstat, kerr := os.Stat(sslcert)
 
 	if cerr == nil && kerr == nil {
-		if kstat.Mode() == kstat.Mode()&0600 {
+		if kstat.Mode()&0177 == 0 {
 			cert, err := tls.LoadX509KeyPair(sslcert, sslkey)
 			if err != nil {
 				panic(err)
