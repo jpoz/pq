@@ -25,9 +25,6 @@ before_install:
   - sudo echo "ssl_cert_file = '`pwd`/certs/test.pqgotest.com.cert'" >> /etc/postgresql/$PGVERSION/main/postgresql.conf
   - sudo echo "ssl_key_file = '`pwd`/certs/test.pqgotest.com.key'" >> /etc/postgresql/$PGVERSION/main/postgresql.conf
   - sudo echo "ssl_ca_file = '`pwd`/certs/root.crt'" >> /etc/postgresql/$PGVERSION/main/postgresql.conf
-  - sudo cp ./certs/test.pqgotest.com.key ./test.pqgotest.com.key
-  - sudo cp ./certs/test.pqgotest.com.cert ./test.pqgotest.com.cert
-  - sudo chmod 400 ./test.pqgotest.com.key
   - sudo chown postgres ./certs/test.pqgotest.com.key
   - sudo chmod 400 ./certs/test.pqgotest.com.key
   - sudo /etc/init.d/postgresql restart
@@ -35,15 +32,16 @@ before_install:
 env:
   matrix:
     - PGVERSION=9.3
-    - PGVERSION=9.3 PGSSLMODE=require PGSSLCERT=./test.pqgotest.com.cert PGSSLKEY=./test.pqgotest.com.key PGUSER=test.pqgotest.com
+    - PGVERSION=9.3 PGSSLMODE=require PGSSLCERT=./certs/test.pqgotest.com.cert PGSSLKEY=./certs/test.pqgotest.com.key PGUSER=test.pqgotest.com
     - PGVERSION=9.2
-    - PGVERSION=9.2 PGSSLMODE=require PGSSLCERT=./test.pqgotest.com.cert PGSSLKEY=./test.pqgotest.com.key PGUSER=test.pqgotest.com
+    - PGVERSION=9.2 PGSSLMODE=require PGSSLCERT=./certs/test.pqgotest.com.cert PGSSLKEY=./certs/test.pqgotest.com.key PGUSER=test.pqgotest.com
     - PGVERSION=9.1
-    - PGVERSION=9.1 PGSSLMODE=require PGSSLCERT=./test.pqgotest.com.cert PGSSLKEY=./test.pqgotest.com.key PGUSER=test.pqgotest.com
+    - PGVERSION=9.1 PGSSLMODE=require PGSSLCERT=./certs/test.pqgotest.com.cert PGSSLKEY=./certs/test.pqgotest.com.key PGUSER=test.pqgotest.com
     - PGVERSION=9.0
-    - PGVERSION=9.0 PGSSLMODE=require PGSSLCERT=./test.pqgotest.com.cert PGSSLKEY=./test.pqgotest.com.key PGUSER=test.pqgotest.com
+    - PGVERSION=9.0 PGSSLMODE=require PGSSLCERT=./certs/test.pqgotest.com.cert PGSSLKEY=./certs/test.pqgotest.com.key PGUSER=test.pqgotest.com
 
 script:
+ - su - postgres
  - env PGUSER=postgres go test -v ./...
 
 before_script:
