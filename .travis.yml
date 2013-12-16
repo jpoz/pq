@@ -29,6 +29,7 @@ before_install:
   - sudo chmod 400 ./certs/test.pqgotest.com.key
   - sudo /etc/init.d/postgresql restart
   - sudo chown $(whoami) ./certs/test.pqgotest.com.key
+  - sudo chmod 400 ./certs/test.pqgotest.com.key
 
 env:
   matrix:
