@@ -32,9 +32,13 @@ before_install:
 env:
   matrix:
     - PGVERSION=9.3
+    - PGVERSION=9.3 PGSSLMODE=require PGSSLCERT=./certs/test.pqgotest.com.cert PGSSLKEY=./certs/test.pqgotest.com.key PGUSER=test.pqgotest.com
     - PGVERSION=9.2
+    - PGVERSION=9.2 PGSSLMODE=require PGSSLCERT=./certs/test.pqgotest.com.cert PGSSLKEY=./certs/test.pqgotest.com.key PGUSER=test.pqgotest.com
     - PGVERSION=9.1
+    - PGVERSION=9.1 PGSSLMODE=require PGSSLCERT=./certs/test.pqgotest.com.cert PGSSLKEY=./certs/test.pqgotest.com.key PGUSER=test.pqgotest.com
     - PGVERSION=9.0
+    - PGVERSION=9.0 PGSSLMODE=require PGSSLCERT=./certs/test.pqgotest.com.cert PGSSLKEY=./certs/test.pqgotest.com.key PGUSER=test.pqgotest.com
 
 script:
  - env PGUSER=postgres go test -v ./...
