@@ -18,9 +18,15 @@ before_install:
   - sudo apt-get -y -o Dpkg::Options::=--force-confdef -o Dpkg::Options::="--force-confnew" install postgresql-$PGVERSION postgresql-server-dev-$PGVERSION
   - sudo chmod 777 /etc/postgresql/$PGVERSION/main/pg_hba.conf
   - sudo echo "local   all         postgres                          trust" > /etc/postgresql/$PGVERSION/main/pg_hba.conf
-  - sudo echo "local   all         all                               trust" >> /etc/postgresql/$PGVERSION/main/pg_hba.conf
-  - sudo echo "host    all         all         127.0.0.1/32          trust" >> /etc/postgresql/$PGVERSION/main/pg_hba.conf
-  - sudo echo "host    all         all         ::1/128               trust" >> /etc/postgresql/$PGVERSION/main/pg_hba.conf
+  - sudo echo "local   all         pqgotest                          trust" >> /etc/postgresql/$PGVERSION/main/pg_hba.conf
+  - sudo echo "host    all         pqgotest         127.0.0.1/32     trust" >> /etc/postgresql/$PGVERSION/main/pg_hba.conf
+  - sudo echo "host    all         pqgotest         ::1/128          trust" >> /etc/postgresql/$PGVERSION/main/pg_hba.conf
+  - sudo echo "host    all         pqgotest         ::1/128          trust" >> /etc/postgresql/$PGVERSION/main/pg_hba.conf
+  - sudo echo "ssl = on" >> /etc/postgresql/$PGVERSION/main/postgresql.conf
+  - sudo echo "ssl_cert_file = '`pwd`/certs/test.pqgotest.com.cert'" >> /etc/postgresql/$PGVERSION/main/postgresql.conf
+  - sudo echo "ssl_key_file = '`pwd`/certs/test.pqgotest.com.key'" >> /etc/postgresql/$PGVERSION/main/postgresql.conf
+  - sudo echo "ssl_ca_file = '`pwd`/certs/root.crt'" >> /etc/postgresql/$PGVERSION/main/postgresql.conf
+
   - sudo /etc/init.d/postgresql restart
 
 env:
