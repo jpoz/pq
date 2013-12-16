@@ -26,10 +26,10 @@ before_install:
   - sudo echo "ssl_key_file = '`pwd`/certs/test.pqgotest.com.key'" >> /etc/postgresql/$PGVERSION/main/postgresql.conf
   - sudo echo "ssl_ca_file = '`pwd`/certs/root.crt'" >> /etc/postgresql/$PGVERSION/main/postgresql.conf
   - sudo chown postgres ./certs/test.pqgotest.com.key
-  - sudo chmod 400 ./certs/test.pqgotest.com.key
+  - sudo chmod 600 ./certs/test.pqgotest.com.key
   - sudo /etc/init.d/postgresql restart
   - sudo chown $(whoami) ./certs/test.pqgotest.com.key
-  - sudo chmod 400 ./certs/test.pqgotest.com.key
+  - sudo chmod 600 ./certs/test.pqgotest.com.key
 
 env:
   matrix:
