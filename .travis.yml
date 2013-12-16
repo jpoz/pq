@@ -42,7 +42,7 @@ env:
     - PGVERSION=9.0 PGSSLMODE=require PGSSLCERT=./certs/test.pqgotest.com.cert PGSSLKEY=./certs/test.pqgotest.com.key PGUSER=test.pqgotest.com
 
 script:
- - env PGUSER=postgres go test -v ./...'
+ - env PGUSER=postgres go test -v ./...
 
 before_script:
  - psql -c 'create user "test.pqgotest.com" with login;' -U postgres
