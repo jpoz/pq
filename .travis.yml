@@ -27,6 +27,7 @@ before_install:
   - sudo echo "ssl_ca_file = '`pwd`/certs/root.crt'" >> /etc/postgresql/$PGVERSION/main/postgresql.conf
   - sudo cp ./certs/test.pqgotest.com.key ./test.pqgotest.com.key
   - sudo cp ./certs/test.pqgotest.com.cert ./test.pqgotest.com.cert
+  - sudo chmod 400 ./test.pqgotest.com.key
   - sudo chown postgres ./certs/test.pqgotest.com.key
   - sudo chmod 400 ./certs/test.pqgotest.com.key
   - sudo /etc/init.d/postgresql restart
