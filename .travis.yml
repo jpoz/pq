@@ -22,6 +22,7 @@ before_install:
   - sudo echo "host    all         pqgotest         127.0.0.1/32     trust" >> /etc/postgresql/$PGVERSION/main/pg_hba.conf
   - sudo echo "host    all         pqgotest         ::1/128          trust" >> /etc/postgresql/$PGVERSION/main/pg_hba.conf
   - sudo echo "host    all         pqgotest         ::1/128          trust" >> /etc/postgresql/$PGVERSION/main/pg_hba.conf
+  - sudo chmod 777 /etc/postgresql/$PGVERSION/main/postgresql.conf
   - sudo echo "ssl = on" >> /etc/postgresql/$PGVERSION/main/postgresql.conf
   - sudo echo "ssl_cert_file = '`pwd`/certs/test.pqgotest.com.cert'" >> /etc/postgresql/$PGVERSION/main/postgresql.conf
   - sudo echo "ssl_key_file = '`pwd`/certs/test.pqgotest.com.key'" >> /etc/postgresql/$PGVERSION/main/postgresql.conf
