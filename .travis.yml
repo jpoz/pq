@@ -9,6 +9,7 @@ go:
 
 before_install:
   - psql --version
+  - ps auxw |  grep postgres | grep -- -D
   - sudo /etc/init.d/postgresql stop
   - sudo apt-get -y --purge remove postgresql libpq-dev libpq5 postgresql-client-common postgresql-common
   - sudo rm -rf /var/lib/postgresql
@@ -22,11 +23,11 @@ before_install:
   - sudo echo "hostssl    pqgotest    postgres         127.0.0.1/32     cert" >> /etc/postgresql/$PGVERSION/main/pg_hba.conf
   - sudo chmod 777 /etc/postgresql/$PGVERSION/main/postgresql.conf
   - sudo echo "ssl = on" >> /etc/postgresql/$PGVERSION/main/postgresql.conf
-  - sudo echo "ssl_cert_file = '`pwd`/certs/postgresql.crt'" >> /etc/postgresql/$PGVERSION/main/postgresql.conf
-  - sudo echo "ssl_key_file = '`pwd`/certs/postgresql.key'" >> /etc/postgresql/$PGVERSION/main/postgresql.conf
-  - sudo echo "ssl_ca_file = '`pwd`/certs/root.crt'" >> /etc/postgresql/$PGVERSION/main/postgresql.conf
-  - sudo chown postgres ./certs/postgresql.key
-  - sudo chmod 0600 ./certs/postgresql.key
+  - sudo cp `pwd`/certs/postgresql.crt /usr/local/pgsql/data/server.crt
+  - sudo cp `pwd`/certs/postgresql.key /usr/local/pgsql/data/server.key
+  - sudo cp `pwd`/certs/root.crt /usr/local/pgsql/data/root.crt
+  - sudo chown postgres /usr/local/pgsql/data/server.key
+  - sudo chmod 0600 /usr/local/pgsql/data/server.key
   - sudo /etc/init.d/postgresql restart
   - sudo chown $(whoami) ./certs/postgresql.key
   - sudo chmod 0600 ./certs/postgresql.key
