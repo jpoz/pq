@@ -9,7 +9,6 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
-	"github.com/lib/pq/oid"
 	"io"
 	"net"
 	"os"
@@ -20,6 +19,8 @@ import (
 	"strings"
 	"time"
 	"unicode"
+
+	"github.com/lib/pq/oid"
 )
 
 // Common error types
@@ -162,7 +163,7 @@ func Open(name string) (_ driver.Conn, err error) {
 		}
 	}
 
-	c, err := net.Dial(network(o))
+	c, err := dial(o)
 	if err != nil {
 		return nil, err
 	}
@@ -171,7 +172,38 @@ func Open(name string) (_ driver.Conn, err error) {
 	cn.ssl(o)
 	cn.buf = bufio.NewReader(cn.c)
 	cn.startup(o)
-	return cn, nil
+	// reset the deadline, in case one was set (see dial)
+	err = cn.c.SetDeadline(time.Time{})
+	return cn, err
+}
+
+func dial(o values) (net.Conn, error) {
+	ntw, addr := network(o)
+
+	timeout := o.Get("connect_timeout")
+	// Ensure the option will not be sent.
+	o.Unset("connect_timeout")
+
+	// Zero or not specified means wait indefinitely.
+	if timeout != "" && timeout != "0" {
+		seconds, err := strconv.ParseInt(timeout, 10, 0)
+		if err != nil {
+			return nil, fmt.Errorf("invalid value for parameter connect_timeout: %s", err)
+		}
+		duration := time.Duration(seconds) * time.Second
+		// connect_timeout should apply to the entire connection establishment
+		// procedure, so we both use a timeout for the TCP connection
+		// establishment and set a deadline for doing the initial handshake.
+		// The deadline is then reset after startup() is done.
+		deadline := time.Now().Add(duration)
+		conn, err := net.DialTimeout(ntw, addr, duration)
+		if err != nil {
+			return nil, err
+		}
+		err = conn.SetDeadline(deadline)
+		return conn, err
+	}
+	return net.Dial(ntw, addr)
 }
 
 func network(o values) (string, string) {
@@ -516,7 +548,7 @@ func (cn *conn) Close() (err error) {
 
 	// Don't go through send(); ListenerConn relies on us not scribbling on the
 	// scratch buffer of this connection.
-	_, err = cn.c.Write([]byte("X\x00\x00\x00\x04"))
+	err = cn.sendSimpleMessage('X')
 	if err != nil {
 		return err
 	}
@@ -584,6 +616,14 @@ func (cn *conn) send(m *writeBuf) {
 	if err != nil {
 		panic(err)
 	}
+}
+
+// Send a message of type typ to the server on the other end of cn.  The
+// message should have no payload.  This method does not use the scratch
+// buffer.
+func (cn *conn) sendSimpleMessage(typ byte) (err error) {
+	_, err = cn.c.Write([]byte{typ, '\x00', '\x00', '\x00', '\x04'})
+	return err
 }
 
 // recvMessage receives any message from the backend, or returns an error if
@@ -1098,7 +1138,21 @@ func (rs *rows) Next(dest []driver.Value) (err error) {
 	panic("not reached")
 }
 
-func quoteIdentifier(name string) string {
+// QuoteIdentifier quotes an "identifier" (e.g. a table or a column name) to be
+// used as part of an SQL statement.  For example:
+//
+//    tblname := "my_table"
+//    data := "my_data"
+//    err = db.Exec(fmt.Sprintf("INSERT INTO %s VALUES ($1)", pq.QuoteIdentifier(tblname)), data)
+//
+// Any double quotes in name will be escaped.  The quoted identifier will be
+// case sensitive when used in a query.  If the input string contains a zero
+// byte, the result will be truncated immediately before it.
+func QuoteIdentifier(name string) string {
+	end := strings.IndexRune(name, 0)
+	if end > -1 {
+		name = name[:end]
+	}
 	return `"` + strings.Replace(name, `"`, `""`, -1) + `"`
 }
 
@@ -1209,7 +1263,7 @@ func parseEnviron(env []string) (out map[string]string) {
 		case "PGKRBSRVNAME", "PGGSSLIB":
 			unsupported()
 		case "PGCONNECT_TIMEOUT":
-			unsupported()
+			accrue("connect_timeout")
 		case "PGCLIENTENCODING":
 			accrue("client_encoding")
 		case "PGDATESTYLE":

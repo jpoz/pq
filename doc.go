@@ -48,6 +48,7 @@ supported:
 	* sslcert - Cert file location. The file must contain PEM encoded data. (optional)
 	* sslkey -  Key file location. The file must contain PEM encoded data. (optional)
 	* fallback_application_name - An application_name to fall back to if one isn't provided.
+	* connect_timeout - Maximum wait for connection, in seconds. Zero or not specified means wait indefinitely.
 
 Valid values for sslmode are:
 

@@ -8,21 +8,21 @@ import (
 )
 
 var (
-	errCopyInClosed               = errors.New("copyin statement has already been closed")
-	errBinaryCopyNotSupported     = errors.New("only text format supported for COPY")
-	errCopyToNotSupported         = errors.New("COPY TO is not supported")
-	errCopyNotSupportedOutsideTxn = errors.New("COPY is only allowed inside a transaction")
+	errCopyInClosed               = errors.New("pq: copyin statement has already been closed")
+	errBinaryCopyNotSupported     = errors.New("pq: only text format supported for COPY")
+	errCopyToNotSupported         = errors.New("pq: COPY TO is not supported")
+	errCopyNotSupportedOutsideTxn = errors.New("pq: COPY is only allowed inside a transaction")
 )
 
 // CopyIn creates a COPY FROM statement which can be prepared with
 // Tx.Prepare().  The target table should be visible in search_path.
 func CopyIn(table string, columns ...string) string {
-	stmt := "COPY " + quoteIdentifier(table) + " ("
+	stmt := "COPY " + QuoteIdentifier(table) + " ("
 	for i, col := range columns {
 		if i != 0 {
 			stmt += ", "
 		}
-		stmt += quoteIdentifier(col)
+		stmt += QuoteIdentifier(col)
 	}
 	stmt += ") FROM STDIN"
 	return stmt
@@ -31,12 +31,12 @@ func CopyIn(table string, columns ...string) string {
 // CopyInSchema creates a COPY FROM statement which can be prepared with
 // Tx.Prepare().
 func CopyInSchema(schema, table string, columns ...string) string {
-	stmt := "COPY " + quoteIdentifier(schema) + "." + quoteIdentifier(table) + " ("
+	stmt := "COPY " + QuoteIdentifier(schema) + "." + QuoteIdentifier(table) + " ("
 	for i, col := range columns {
 		if i != 0 {
 			stmt += ", "
 		}
-		stmt += quoteIdentifier(col)
+		stmt += QuoteIdentifier(col)
 	}
 	stmt += ") FROM STDIN"
 	return stmt
@@ -225,7 +225,11 @@ func (ci *copyin) Close() (err error) {
 	if len(ci.buffer) > 0 {
 		ci.flush(ci.buffer)
 	}
-	ci.cn.send(ci.cn.writeBuf('c'))
+	// Avoid touching the scratch buffer as resploop could be using it.
+	err = ci.cn.sendSimpleMessage('c')
+	if err != nil {
+		return err
+	}
 
 	<-ci.done
 

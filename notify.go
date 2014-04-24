@@ -207,12 +207,12 @@ func (l *ListenerConn) listenerConnMain() {
 
 // Send a LISTEN query to the server.  See ExecSimpleQuery.
 func (l *ListenerConn) Listen(channel string) (bool, error) {
-	return l.ExecSimpleQuery("LISTEN " + quoteIdentifier(channel))
+	return l.ExecSimpleQuery("LISTEN " + QuoteIdentifier(channel))
 }
 
 // Send an UNLISTEN query to the server.  See ExecSimpleQuery.
 func (l *ListenerConn) Unlisten(channel string) (bool, error) {
-	return l.ExecSimpleQuery("UNLISTEN " + quoteIdentifier(channel))
+	return l.ExecSimpleQuery("UNLISTEN " + QuoteIdentifier(channel))
 }
 
 // Send `UNLISTEN *` to the server.  See ExecSimpleQuery.
@@ -339,8 +339,8 @@ func (l *ListenerConn) Err() error {
 
 var errListenerClosed = errors.New("pq: Listener has been closed")
 
-var ErrChannelAlreadyOpen = errors.New("channel is already open")
-var ErrChannelNotOpen = errors.New("channel is not open")
+var ErrChannelAlreadyOpen = errors.New("pq: channel is already open")
+var ErrChannelNotOpen = errors.New("pq: channel is not open")
 
 type ListenerEventType int
 
